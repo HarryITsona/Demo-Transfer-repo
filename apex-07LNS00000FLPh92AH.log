@@ -1,0 +1,552 @@
+55.0 APEX_CODE,FINEST;APEX_PROFILING,INFO;CALLOUT,INFO;DATA_ACCESS,INFO;DB,INFO;NBA,INFO;SYSTEM,DEBUG;VALIDATION,INFO;VISUALFORCE,INFO;WAVE,INFO;WORKFLOW,INFO
+Execute Anonymous: 
+Execute Anonymous: Integer totalClosedCount = 0; 
+Execute Anonymous: Integer totalOpenCount = 0; 
+Execute Anonymous:  
+Execute Anonymous: // Creates the savepoint 
+Execute Anonymous: Savepoint startPoint = Database.setSavepoint(); 
+Execute Anonymous:  
+Execute Anonymous: Vehicle__c vehicle = new Vehicle__c(Name='Freebird'); 
+Execute Anonymous: INSERT vehicle; 
+Execute Anonymous:  
+Execute Anonymous: // create a new product2/equipment 
+Execute Anonymous: Product2 equipment1 = new Product2(); 
+Execute Anonymous: equipment1.Name='Toilet Seat Cover'; 
+Execute Anonymous: equipment1.Cost__c = 100; 
+Execute Anonymous: equipment1.Current_Inventory__c = 1; 
+Execute Anonymous: equipment1.Lifespan_Months__c = 1; 
+Execute Anonymous: equipment1.Maintenance_Cycle__c = 30; 
+Execute Anonymous: equipment1.Warehouse_SKU__c = '#grubsareyummy'; 
+Execute Anonymous: equipment1.IsActive = true; 
+Execute Anonymous: equipment1.Replacement_Part__c = true; 
+Execute Anonymous: INSERT equipment1; 
+Execute Anonymous:  
+Execute Anonymous: // create a new product2/equipment 
+Execute Anonymous: Product2 equipment2 = new Product2(); 
+Execute Anonymous: equipment2.Name='Motor'; 
+Execute Anonymous: equipment2.Cost__c = 100; 
+Execute Anonymous: equipment2.Current_Inventory__c = 1; 
+Execute Anonymous: equipment2.Lifespan_Months__c = 1; 
+Execute Anonymous: equipment2.Maintenance_Cycle__c = 15; 
+Execute Anonymous: equipment2.Warehouse_SKU__c = '#grubsareyummy'; 
+Execute Anonymous: equipment2.IsActive = true; 
+Execute Anonymous: equipment2.Replacement_Part__c = true; 
+Execute Anonymous: INSERT equipment2; 
+Execute Anonymous:  
+Execute Anonymous:  
+Execute Anonymous: // new case of type 'Routine Maintenance' -- WILL fire trigger 
+Execute Anonymous: Case maintenaceRequest = new Case(); 
+Execute Anonymous: maintenaceRequest.Subject = vehicle.Name; 
+Execute Anonymous: maintenaceRequest.Vehicle__c = vehicle.Id; 
+Execute Anonymous: maintenaceRequest.Status = 'Open'; 
+Execute Anonymous: maintenaceRequest.Type = 'Routine Maintenance'; 
+Execute Anonymous: maintenaceRequest.Date_Reported__c = System.today(); 
+Execute Anonymous: INSERT maintenaceRequest; 
+Execute Anonymous:  
+Execute Anonymous: //These records will joint the Equipment1 and 2 with the maintenance request record. 
+Execute Anonymous: List<Equipment_Maintenance_Item__c> equipmentMaintenanceItems = new List<Equipment_Maintenance_Item__c>(); 
+Execute Anonymous: equipmentMaintenanceItems.add(new Equipment_Maintenance_Item__c(Equipment__c = equipment1.Id,Maintenance_Request__c = maintenaceRequest.Id)); 
+Execute Anonymous: equipmentMaintenanceItems.add(new Equipment_Maintenance_Item__c(Equipment__c = equipment2.Id,Maintenance_Request__c = maintenaceRequest.Id)); 
+Execute Anonymous: insert equipmentMaintenanceItems; 
+Execute Anonymous:  
+Execute Anonymous: // update each case status 
+Execute Anonymous: maintenaceRequest.Status = 'Closed'; 
+Execute Anonymous: UPDATE maintenaceRequest; 
+Execute Anonymous:  
+Execute Anonymous: // grab some values so we can compare after clean up 
+Execute Anonymous: List<Case> newMaintRequestCreated = [SELECT Id, Date_Due__c FROM Case WHERE Type = 'Routine Maintenance' AND Status != 'Closed' AND Vehicle__c = :vehicle.Id ]; 
+Execute Anonymous:  
+Execute Anonymous: // clean up, rolling back the savepoint. 
+Execute Anonymous: Database.rollback(startPoint); 
+Execute Anonymous:  
+Execute Anonymous: System.assertEquals(Date.Today().addDays(15), newMaintRequestCreated.get(0).Date_Due__c);
+16:58:40.0 (629612)|USER_INFO|[EXTERNAL]|005NS00000IDMA1|yogeshsayant@cunning-panda-1ovwqb.com|(GMT+05:30) India Standard Time (Asia/Kolkata)|GMT+05:30
+16:58:40.0 (658402)|EXECUTION_STARTED
+16:58:40.0 (687333)|CODE_UNIT_STARTED|[EXTERNAL]|execute_anonymous_apex
+16:58:40.0 (958088)|VARIABLE_SCOPE_BEGIN|[12]|equipment1|Product2|true|false
+16:58:40.0 (970428)|VARIABLE_SCOPE_BEGIN|[24]|equipment2|Product2|true|false
+16:58:40.0 (1136880)|VARIABLE_SCOPE_BEGIN|[46]|equipmentMaintenanceItems|List<Equipment_Maintenance_Item__c>|true|false
+16:58:40.0 (1168000)|VARIABLE_SCOPE_BEGIN|[37]|maintenaceRequest|Case|true|false
+16:58:40.0 (1184692)|VARIABLE_SCOPE_BEGIN|[56]|newMaintRequestCreated|List<Case>|true|false
+16:58:40.0 (1195382)|VARIABLE_SCOPE_BEGIN|[6]|startPoint|System.Savepoint|true|false
+16:58:40.0 (1211132)|VARIABLE_SCOPE_BEGIN|[2]|totalClosedCount|Integer|false|false
+16:58:40.0 (1217102)|VARIABLE_SCOPE_BEGIN|[3]|totalOpenCount|Integer|false|false
+16:58:40.0 (1250733)|VARIABLE_SCOPE_BEGIN|[8]|vehicle|Vehicle__c|true|false
+16:58:40.0 (1404205)|HEAP_ALLOCATE|[93]|Bytes:3
+16:58:40.0 (1451347)|HEAP_ALLOCATE|[98]|Bytes:152
+16:58:40.0 (1467686)|HEAP_ALLOCATE|[415]|Bytes:408
+16:58:40.0 (1479206)|HEAP_ALLOCATE|[428]|Bytes:408
+16:58:40.0 (1489067)|HEAP_ALLOCATE|[536]|Bytes:48
+16:58:40.0 (1513068)|HEAP_ALLOCATE|[247]|Bytes:6
+16:58:40.0 (1535698)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:117
+16:58:40.0 (1798863)|STATEMENT_EXECUTE|[1]
+16:58:40.0 (1801143)|STATEMENT_EXECUTE|[2]
+16:58:40.0 (1810812)|HEAP_ALLOCATE|[2]|Bytes:4
+16:58:40.0 (1882374)|VARIABLE_ASSIGNMENT|[2]|totalClosedCount|0
+16:58:40.0 (1887075)|STATEMENT_EXECUTE|[3]
+16:58:40.0 (1889945)|HEAP_ALLOCATE|[3]|Bytes:4
+16:58:40.0 (1901275)|VARIABLE_ASSIGNMENT|[3]|totalOpenCount|0
+16:58:40.0 (1904905)|STATEMENT_EXECUTE|[6]
+16:58:40.0 (1928135)|HEAP_ALLOCATE|[68]|Bytes:5
+16:58:40.0 (1955306)|HEAP_ALLOCATE|[74]|Bytes:5
+16:58:40.0 (1962706)|HEAP_ALLOCATE|[82]|Bytes:7
+16:58:40.0 (2703629)|SAVEPOINT_SET|[6]|SavepointValue0
+16:58:40.0 (2744350)|HEAP_ALLOCATE|[6]|Bytes:16
+16:58:40.0 (3365721)|VARIABLE_ASSIGNMENT|[6]|startPoint|"common.apex.runtime.impl.ApexUserSavepoint@54ce3f06"|0x54ce3f06
+16:58:40.0 (3380201)|STATEMENT_EXECUTE|[8]
+16:58:40.0 (3458974)|HEAP_ALLOCATE|[8]|Bytes:4
+16:58:40.0 (3591576)|HEAP_ALLOCATE|[8]|Bytes:8
+16:58:40.0 (3724139)|VARIABLE_ASSIGNMENT|[8]|this.Name|"Freebird"|0x1ae078aa
+16:58:40.0 (3784750)|VARIABLE_ASSIGNMENT|[8]|vehicle|{"Name":"Freebird"}|0x1ae078aa
+16:58:40.0 (3790710)|STATEMENT_EXECUTE|[9]
+16:58:40.0 (3847981)|HEAP_ALLOCATE|[9]|Bytes:8
+16:58:40.0 (3884192)|DML_BEGIN|[9]|Op:Insert|Type:Vehicle__c|Rows:1
+16:58:40.0 (3970412)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (34689920)|DML_END|[9]
+16:58:40.0 (35286550)|STATEMENT_EXECUTE|[12]
+16:58:40.0 (35376963)|HEAP_ALLOCATE|[12]|Bytes:4
+16:58:40.0 (35647138)|VARIABLE_ASSIGNMENT|[12]|equipment1|{}|0x44189e4c
+16:58:40.0 (35655778)|STATEMENT_EXECUTE|[13]
+16:58:40.0 (35664748)|HEAP_ALLOCATE|[13]|Bytes:17
+16:58:40.0 (35906042)|VARIABLE_ASSIGNMENT|[13]|this.Name|"Toilet Seat Cover"|0x44189e4c
+16:58:40.0 (35917813)|STATEMENT_EXECUTE|[14]
+16:58:40.0 (35999105)|HEAP_ALLOCATE|[14]|Bytes:28
+16:58:40.0 (36366330)|VARIABLE_ASSIGNMENT|[14]|this.Cost__c|100|0x44189e4c
+16:58:40.0 (36378992)|STATEMENT_EXECUTE|[15]
+16:58:40.0 (36418922)|HEAP_ALLOCATE|[15]|Bytes:28
+16:58:40.0 (36426432)|HEAP_ALLOCATE|[15]|Bytes:28
+16:58:40.0 (36508104)|VARIABLE_ASSIGNMENT|[15]|this.Current_Inventory__c|1|0x44189e4c
+16:58:40.0 (36517984)|STATEMENT_EXECUTE|[16]
+16:58:40.0 (36532034)|HEAP_ALLOCATE|[16]|Bytes:28
+16:58:40.0 (36538685)|HEAP_ALLOCATE|[16]|Bytes:28
+16:58:40.0 (36608396)|VARIABLE_ASSIGNMENT|[16]|this.Lifespan_Months__c|1|0x44189e4c
+16:58:40.0 (36617836)|STATEMENT_EXECUTE|[17]
+16:58:40.0 (36630966)|HEAP_ALLOCATE|[17]|Bytes:28
+16:58:40.0 (36695557)|VARIABLE_ASSIGNMENT|[17]|this.Maintenance_Cycle__c|30|0x44189e4c
+16:58:40.0 (36704478)|STATEMENT_EXECUTE|[18]
+16:58:40.0 (36710798)|HEAP_ALLOCATE|[18]|Bytes:14
+16:58:40.0 (36775949)|VARIABLE_ASSIGNMENT|[18]|this.Warehouse_SKU__c|"#grubsareyummy"|0x44189e4c
+16:58:40.0 (36785298)|STATEMENT_EXECUTE|[19]
+16:58:40.0 (36902031)|VARIABLE_ASSIGNMENT|[19]|this.IsActive|true|0x44189e4c
+16:58:40.0 (36913331)|STATEMENT_EXECUTE|[20]
+16:58:40.0 (36976902)|VARIABLE_ASSIGNMENT|[20]|this.Replacement_Part__c|true|0x44189e4c
+16:58:40.0 (36986723)|STATEMENT_EXECUTE|[21]
+16:58:40.0 (37066054)|HEAP_ALLOCATE|[21]|Bytes:8
+16:58:40.0 (37126704)|DML_BEGIN|[21]|Op:Insert|Type:Product2|Rows:1
+16:58:40.0 (37229437)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (59353915)|DML_END|[21]
+16:58:40.0 (59941547)|STATEMENT_EXECUTE|[24]
+16:58:40.0 (59994367)|HEAP_ALLOCATE|[24]|Bytes:4
+16:58:40.0 (60148471)|VARIABLE_ASSIGNMENT|[24]|equipment2|{}|0x2274ab5e
+16:58:40.0 (60160141)|STATEMENT_EXECUTE|[25]
+16:58:40.0 (60169050)|HEAP_ALLOCATE|[25]|Bytes:5
+16:58:40.0 (60407506)|VARIABLE_ASSIGNMENT|[25]|this.Name|"Motor"|0x2274ab5e
+16:58:40.0 (60418146)|STATEMENT_EXECUTE|[26]
+16:58:40.0 (60459736)|HEAP_ALLOCATE|[26]|Bytes:28
+16:58:40.0 (60559958)|VARIABLE_ASSIGNMENT|[26]|this.Cost__c|100|0x2274ab5e
+16:58:40.0 (60570249)|STATEMENT_EXECUTE|[27]
+16:58:40.0 (60591538)|HEAP_ALLOCATE|[27]|Bytes:28
+16:58:40.0 (60597869)|HEAP_ALLOCATE|[27]|Bytes:28
+16:58:40.0 (60655270)|VARIABLE_ASSIGNMENT|[27]|this.Current_Inventory__c|1|0x2274ab5e
+16:58:40.0 (60663350)|STATEMENT_EXECUTE|[28]
+16:58:40.0 (60672880)|HEAP_ALLOCATE|[28]|Bytes:28
+16:58:40.0 (60678060)|HEAP_ALLOCATE|[28]|Bytes:28
+16:58:40.0 (60718380)|VARIABLE_ASSIGNMENT|[28]|this.Lifespan_Months__c|1|0x2274ab5e
+16:58:40.0 (60725191)|STATEMENT_EXECUTE|[29]
+16:58:40.0 (60733552)|HEAP_ALLOCATE|[29]|Bytes:28
+16:58:40.0 (60774682)|VARIABLE_ASSIGNMENT|[29]|this.Maintenance_Cycle__c|15|0x2274ab5e
+16:58:40.0 (60782822)|STATEMENT_EXECUTE|[30]
+16:58:40.0 (60838454)|VARIABLE_ASSIGNMENT|[30]|this.Warehouse_SKU__c|"#grubsareyummy"|0x2274ab5e
+16:58:40.0 (60847684)|STATEMENT_EXECUTE|[31]
+16:58:40.0 (60911645)|VARIABLE_ASSIGNMENT|[31]|this.IsActive|true|0x2274ab5e
+16:58:40.0 (60919775)|STATEMENT_EXECUTE|[32]
+16:58:40.0 (60960056)|VARIABLE_ASSIGNMENT|[32]|this.Replacement_Part__c|true|0x2274ab5e
+16:58:40.0 (60967376)|STATEMENT_EXECUTE|[33]
+16:58:40.0 (61043887)|HEAP_ALLOCATE|[33]|Bytes:8
+16:58:40.0 (61101547)|DML_BEGIN|[33]|Op:Insert|Type:Product2|Rows:1
+16:58:40.0 (61195650)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (77624493)|DML_END|[33]
+16:58:40.0 (78193444)|STATEMENT_EXECUTE|[37]
+16:58:40.0 (78317785)|HEAP_ALLOCATE|[37]|Bytes:4
+16:58:40.0 (78627311)|VARIABLE_ASSIGNMENT|[37]|maintenaceRequest|{}|0xab88ae8
+16:58:40.0 (78638922)|STATEMENT_EXECUTE|[38]
+16:58:40.0 (79131382)|VARIABLE_ASSIGNMENT|[38]|this.Subject|"Freebird"|0xab88ae8
+16:58:40.0 (79140952)|STATEMENT_EXECUTE|[39]
+16:58:40.0 (79294105)|VARIABLE_ASSIGNMENT|[39]|this.Vehicle__c|"a02NS00000CtBrxYAF"|0xab88ae8
+16:58:40.0 (79305535)|STATEMENT_EXECUTE|[40]
+16:58:40.0 (79311345)|HEAP_ALLOCATE|[40]|Bytes:4
+16:58:40.0 (79396365)|VARIABLE_ASSIGNMENT|[40]|this.Status|"Open"|0xab88ae8
+16:58:40.0 (79406086)|STATEMENT_EXECUTE|[41]
+16:58:40.0 (79410477)|HEAP_ALLOCATE|[41]|Bytes:19
+16:58:40.0 (79476218)|VARIABLE_ASSIGNMENT|[41]|this.Type|"Routine Maintenance"|0xab88ae8
+16:58:40.0 (79486007)|STATEMENT_EXECUTE|[42]
+16:58:40.0 (79671702)|HEAP_ALLOCATE|[42]|Bytes:4
+16:58:40.0 (79783104)|VARIABLE_ASSIGNMENT|[42]|this.Date_Reported__c|"2025-03-03T00:00:00.000Z"|0xab88ae8
+16:58:40.0 (79794604)|STATEMENT_EXECUTE|[43]
+16:58:40.0 (79849835)|HEAP_ALLOCATE|[43]|Bytes:8
+16:58:40.0 (79902626)|DML_BEGIN|[43]|Op:Insert|Type:Case|Rows:1
+16:58:40.0 (79996438)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (92160481)|CODE_UNIT_STARTED|[EXTERNAL]|01qNS00000WDbfF|MaintenanceRequestTrigger on Case trigger event BeforeInsert|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (92331275)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (92570949)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:6
+16:58:40.0 (92595880)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (92607020)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (92665061)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x1deb91b1
+16:58:40.0 (92727562)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (92735032)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (92747623)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x1deb91b1
+16:58:40.0 (92756332)|STATEMENT_EXECUTE|[1]
+16:58:40.0 (92797154)|STATEMENT_EXECUTE|[2]
+16:58:40.92 (92806344)|CUMULATIVE_LIMIT_USAGE
+16:58:40.92 (92806344)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 0 out of 100
+  Number of query rows: 0 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 5 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 4 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+16:58:40.92 (92806344)|CUMULATIVE_LIMIT_USAGE_END
+
+16:58:40.0 (93101159)|CODE_UNIT_FINISHED|MaintenanceRequestTrigger on Case trigger event BeforeInsert|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (136591283)|CODE_UNIT_STARTED|[EXTERNAL]|01qNS00000WDbfF|MaintenanceRequestTrigger on Case trigger event AfterInsert|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (136720415)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (137079852)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (137098382)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (137143573)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x28168d30
+16:58:40.0 (137190073)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (137197374)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (137208233)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x28168d30
+16:58:40.0 (137217054)|STATEMENT_EXECUTE|[1]
+16:58:40.0 (137238625)|STATEMENT_EXECUTE|[2]
+16:58:40.137 (137247474)|CUMULATIVE_LIMIT_USAGE
+16:58:40.137 (137247474)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 0 out of 100
+  Number of query rows: 0 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 5 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 4 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+16:58:40.137 (137247474)|CUMULATIVE_LIMIT_USAGE_END
+
+16:58:40.0 (137564511)|CODE_UNIT_FINISHED|MaintenanceRequestTrigger on Case trigger event AfterInsert|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (138416135)|CODE_UNIT_STARTED|[EXTERNAL]|Workflow:Case
+16:58:40.0 (149587363)|WF_RULE_EVAL_BEGIN|Assignment
+16:58:40.0 (149644014)|WF_SPOOL_ACTION_BEGIN|Assignment
+16:58:40.0 (149680125)|WF_ACTION|.
+16:58:40.0 (149690485)|WF_RULE_EVAL_END
+16:58:40.0 (149707725)|WF_RULE_EVAL_BEGIN|Escalation
+16:58:40.0 (149731076)|WF_SPOOL_ACTION_BEGIN|Escalation
+16:58:40.0 (149744606)|WF_ACTION|.
+16:58:40.0 (149751276)|WF_RULE_EVAL_END
+16:58:40.0 (149955720)|WF_ACTIONS_END| None
+16:58:40.0 (149979410)|CODE_UNIT_FINISHED|Workflow:Case
+16:58:40.0 (151435747)|CODE_UNIT_STARTED|[EXTERNAL]|SLA
+16:58:40.0 (155274247)|SLA_PROCESS_CASE|500NS00000fkTvR
+16:58:40.0 (158986607)|SLA_END|SlaProcessController:&#124;Case:1&#124;LoadTime:4&#124;ProcTime:2&#124;CM CUD:0&#124;0&#124;0&#124;New Trigger:0
+16:58:40.0 (159131489)|CODE_UNIT_FINISHED|SLA
+16:58:40.0 (164601859)|DML_END|[43]
+16:58:40.0 (165182070)|STATEMENT_EXECUTE|[46]
+16:58:40.0 (165220382)|HEAP_ALLOCATE|[46]|Bytes:4
+16:58:40.0 (165400485)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (165465826)|VARIABLE_ASSIGNMENT|[46]|equipmentMaintenanceItems|[]|0xb28ffcf
+16:58:40.0 (165477146)|STATEMENT_EXECUTE|[47]
+16:58:40.0 (165608189)|HEAP_ALLOCATE|[47]|Bytes:4
+16:58:40.0 (166180909)|VARIABLE_ASSIGNMENT|[47]|this.Equipment__c|"01tNS00000CMognYAD"|0x1e933c12
+16:58:40.0 (166280231)|VARIABLE_ASSIGNMENT|[47]|this.Maintenance_Request__c|"500NS00000fkTvRYAU"|0x1e933c12
+16:58:40.0 (166407092)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (166426484)|STATEMENT_EXECUTE|[48]
+16:58:40.0 (166456884)|HEAP_ALLOCATE|[48]|Bytes:4
+16:58:40.0 (166532466)|VARIABLE_ASSIGNMENT|[48]|this.Equipment__c|"01tNS00000CMogoYAD"|0x1407a649
+16:58:40.0 (166586637)|VARIABLE_ASSIGNMENT|[48]|this.Maintenance_Request__c|"500NS00000fkTvRYAU"|0x1407a649
+16:58:40.0 (166641417)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (166655257)|STATEMENT_EXECUTE|[49]
+16:58:40.0 (166805931)|DML_BEGIN|[49]|Op:Insert|Type:Equipment_Maintenance_Item__c|Rows:2
+16:58:40.0 (166911043)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:12
+16:58:40.0 (212637137)|DML_END|[49]
+16:58:40.0 (213317270)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:12
+16:58:40.0 (213348981)|STATEMENT_EXECUTE|[52]
+16:58:40.0 (213359591)|HEAP_ALLOCATE|[52]|Bytes:6
+16:58:40.0 (213603895)|VARIABLE_ASSIGNMENT|[52]|this.Status|"Closed"|0xab88ae8
+16:58:40.0 (213612305)|STATEMENT_EXECUTE|[53]
+16:58:40.0 (213690937)|HEAP_ALLOCATE|[53]|Bytes:8
+16:58:40.0 (213741908)|DML_BEGIN|[53]|Op:Update|Type:Case|Rows:1
+16:58:40.0 (213826719)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (226252049)|CODE_UNIT_STARTED|[EXTERNAL]|01qNS00000WDZoj|MaintenanceRequest on Case trigger event BeforeUpdate|__sfdc_trigger/MaintenanceRequest
+16:58:40.0 (226377591)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (226482173)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (226659196)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (226675097)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequest|true|false
+16:58:40.0 (226717198)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x23e3bea4
+16:58:40.0 (226770829)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (226777939)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequest|true|false
+16:58:40.0 (226790829)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x23e3bea4
+16:58:40.0 (226798949)|STATEMENT_EXECUTE|[1]
+16:58:40.226 (226806629)|CUMULATIVE_LIMIT_USAGE
+16:58:40.226 (226806629)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 0 out of 100
+  Number of query rows: 0 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 7 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 7 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+16:58:40.226 (226806629)|CUMULATIVE_LIMIT_USAGE_END
+
+16:58:40.0 (227164215)|CODE_UNIT_FINISHED|MaintenanceRequest on Case trigger event BeforeUpdate|__sfdc_trigger/MaintenanceRequest
+16:58:40.0 (229041289)|CODE_UNIT_STARTED|[EXTERNAL]|01qNS00000WDbfF|MaintenanceRequestTrigger on Case trigger event BeforeUpdate|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (229109502)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (229123662)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (229276525)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (229287525)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (229320135)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x35a7405b
+16:58:40.0 (229355526)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (229361786)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (229373787)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x35a7405b
+16:58:40.0 (229381347)|STATEMENT_EXECUTE|[1]
+16:58:40.0 (229400576)|STATEMENT_EXECUTE|[2]
+16:58:40.0 (229402317)|STATEMENT_EXECUTE|[3]
+16:58:40.0 (229410427)|HEAP_ALLOCATE|[3]|Bytes:8
+16:58:40.0 (229489959)|USER_DEBUG|[3]|DEBUG|isUpdate
+16:58:40.0 (229502209)|STATEMENT_EXECUTE|[5]
+16:58:40.0 (229505538)|HEAP_ALLOCATE|[5]|Bytes:8
+16:58:40.0 (229523538)|USER_DEBUG|[5]|DEBUG|isbefore
+16:58:40.0 (229531750)|STATEMENT_EXECUTE|[6]
+16:58:40.0 (229551419)|HEAP_ALLOCATE|[6]|Bytes:4
+16:58:40.0 (229642802)|VARIABLE_SCOPE_BEGIN|[6]|routineMaintenance|List<Case>|true|false
+16:58:40.0 (229654512)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (229671172)|VARIABLE_ASSIGNMENT|[6]|routineMaintenance|[]|0x334eb292
+16:58:40.0 (229854195)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (229926277)|HEAP_ALLOCATE|[7]|Bytes:12
+16:58:40.0 (230189172)|HEAP_ALLOCATE|[7]|Bytes:5
+16:58:40.0 (230219652)|HEAP_ALLOCATE|[7]|Bytes:4
+16:58:40.0 (230237773)|VARIABLE_SCOPE_BEGIN|[7]|m|Case|true|false
+16:58:40.0 (231718659)|VARIABLE_ASSIGNMENT|[7]|m|{"Status":"Closed","LastModifiedDate":"2025-03-03T11:28:41.000Z","IsDeleted":false,"Priority":"Medium","IsClosed":false,"Subject":"Freebird","SystemModstamp":"2025-03-03T11:28:41.000Z","BusinessHoursId":"01mNS000006F4npYAC","IsStopped":false,"Vehicle__c":"a02NS00000CtBrxYAF","Type":"Routine Maintenance","CreatedById":"005NS00000IDMA1YAP","IsEscalated":false,"OwnerId":"005NS00000IDMA1YAP","CreatedDate":"2025-03-03T11:28:41.000Z","IsClosedOnCreate":false,"CaseNumber":"00001045","Id":"500NS00000fkTvRYAU","Date_Reported__c":"2025-03-03T00:00:00.000Z","LastModifiedById":"005NS00000IDMA1YAP"}|0x3dd6dcc5
+16:58:40.0 (231739630)|STATEMENT_EXECUTE|[7]
+16:58:40.0 (231741960)|STATEMENT_EXECUTE|[8]
+16:58:40.0 (231901923)|VARIABLE_SCOPE_BEGIN|[8]|c|Case|true|false
+16:58:40.0 (232365231)|VARIABLE_ASSIGNMENT|[8]|c|{"Status":"Open","LastModifiedDate":"2025-03-03T11:28:41.000Z","IsDeleted":false,"Priority":"Medium","IsClosed":false,"Subject":"Freebird","SystemModstamp":"2025-03-03T11:28:41.000Z","BusinessHoursId":"01mNS000006F4npYAC","IsStopped":false,"Vehicle__c":"a02NS00000CtBrxYAF","Type":"Routine Maintenance","CreatedById":"005NS00000IDMA1YAP","IsEscalated":false,"OwnerId":"005NS00000IDMA1YAP","CreatedDate":"2025-03-03T11:28:41.000Z","IsClosedOnCreate":false,"CaseNumber":"00001045","Id":"500NS00000fkTvRYAU","Date_Reported__c":"2025-03-03T00:00:00.000Z","LastModifiedById":"005NS00000IDMA1YAP"}|0x16aff9a
+16:58:40.0 (232398352)|HEAP_ALLOCATE|[9]|Bytes:6
+16:58:40.0 (232457984)|STATEMENT_EXECUTE|[9]
+16:58:40.0 (232460164)|STATEMENT_EXECUTE|[10]
+16:58:40.0 (233075735)|HEAP_ALLOCATE|[10]|Bytes:4
+16:58:40.0 (233088364)|HEAP_ALLOCATE|[10]|Bytes:4
+16:58:40.0 (233113456)|VARIABLE_SCOPE_BEGIN|[10]|l|Case|true|false
+16:58:40.0 (233441731)|VARIABLE_ASSIGNMENT|[10]|l|{"Status":"Closed","IsDeleted":false,"Priority":"Medium","IsClosed":false,"Subject":"Freebird","SystemModstamp":"2025-03-03T11:28:41.000Z","BusinessHoursId":"01mNS000006F4npYAC","IsStopped":false,"Vehicle__c":"a02NS00000CtBrxYAF","Type":"Routine Maintenance","IsEscalated":false,"OwnerId":"005NS00000IDMA1YAP","IsClosedOnCreate":false,"Date_Reported__c":"2025-03-03T00:00:00.000Z"}|0x5f048a94
+16:58:40.0 (233452722)|STATEMENT_EXECUTE|[11]
+16:58:40.0 (233857509)|VARIABLE_ASSIGNMENT|[11]|this.Type|"Routine Maintenance"|0x5f048a94
+16:58:40.0 (233870939)|STATEMENT_EXECUTE|[12]
+16:58:40.0 (233877099)|HEAP_ALLOCATE|[12]|Bytes:3
+16:58:40.0 (234237526)|VARIABLE_ASSIGNMENT|[12]|this.Status|"New"|0x5f048a94
+16:58:40.0 (234247466)|STATEMENT_EXECUTE|[13]
+16:58:40.0 (234307358)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (234348419)|HEAP_ALLOCATE|[7]|Bytes:5
+16:58:40.0 (234366308)|VARIABLE_ASSIGNMENT|[7]|m|null|
+16:58:40.0 (234371428)|STATEMENT_EXECUTE|[16]
+16:58:40.0 (234374459)|HEAP_ALLOCATE|[16]|Bytes:18
+16:58:40.0 (234462821)|USER_DEBUG|[16]|DEBUG|routineMaintenance
+16:58:40.0 (234475390)|STATEMENT_EXECUTE|[17]
+16:58:40.0 (234615093)|DML_BEGIN|[17]|Op:Insert|Type:Case|Rows:1
+16:58:40.0 (234702914)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (241099512)|CODE_UNIT_STARTED|[EXTERNAL]|01qNS00000WDbfF|MaintenanceRequestTrigger on Case trigger event BeforeInsert|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (241194455)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (241394678)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (241427829)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (241472210)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x4089c244
+16:58:40.0 (241517080)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (241524240)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (241534591)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x4089c244
+16:58:40.0 (241542391)|STATEMENT_EXECUTE|[1]
+16:58:40.0 (241592982)|STATEMENT_EXECUTE|[2]
+16:58:40.241 (241603072)|CUMULATIVE_LIMIT_USAGE
+16:58:40.241 (241603072)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 0 out of 100
+  Number of query rows: 0 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 8 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 8 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+16:58:40.241 (241603072)|CUMULATIVE_LIMIT_USAGE_END
+
+16:58:40.0 (241880618)|CODE_UNIT_FINISHED|MaintenanceRequestTrigger on Case trigger event BeforeInsert|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (268874376)|CODE_UNIT_STARTED|[EXTERNAL]|01qNS00000WDbfF|MaintenanceRequestTrigger on Case trigger event AfterInsert|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (268992208)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (269302664)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (269324824)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (269383165)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x5b2fb0e2
+16:58:40.0 (269468537)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (269480476)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequestTrigger|true|false
+16:58:40.0 (269502077)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x5b2fb0e2
+16:58:40.0 (269515848)|STATEMENT_EXECUTE|[1]
+16:58:40.0 (269543437)|STATEMENT_EXECUTE|[2]
+16:58:40.269 (269555179)|CUMULATIVE_LIMIT_USAGE
+16:58:40.269 (269555179)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 0 out of 100
+  Number of query rows: 0 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 8 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 8 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+16:58:40.269 (269555179)|CUMULATIVE_LIMIT_USAGE_END
+
+16:58:40.0 (269909924)|CODE_UNIT_FINISHED|MaintenanceRequestTrigger on Case trigger event AfterInsert|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (270179240)|CODE_UNIT_STARTED|[EXTERNAL]|Workflow:Case
+16:58:40.0 (276745111)|WF_RULE_EVAL_BEGIN|Assignment
+16:58:40.0 (276791062)|WF_SPOOL_ACTION_BEGIN|Assignment
+16:58:40.0 (276816723)|WF_ACTION|.
+16:58:40.0 (276823692)|WF_RULE_EVAL_END
+16:58:40.0 (276835863)|WF_RULE_EVAL_BEGIN|Escalation
+16:58:40.0 (276851692)|WF_SPOOL_ACTION_BEGIN|Escalation
+16:58:40.0 (276860333)|WF_ACTION|.
+16:58:40.0 (276864794)|WF_RULE_EVAL_END
+16:58:40.0 (277015535)|WF_ACTIONS_END| None
+16:58:40.0 (277032597)|CODE_UNIT_FINISHED|Workflow:Case
+16:58:40.0 (277526665)|CODE_UNIT_STARTED|[EXTERNAL]|SLA
+16:58:40.0 (280125584)|SLA_PROCESS_CASE|500NS00000fkTvU
+16:58:40.0 (286698665)|SLA_END|SlaProcessController:&#124;Case:1&#124;LoadTime:3&#124;ProcTime:3&#124;CM CUD:0&#124;0&#124;0&#124;New Trigger:0
+16:58:40.0 (286815448)|CODE_UNIT_FINISHED|SLA
+16:58:40.0 (290586527)|DML_END|[17]
+16:58:40.0 (291231689)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.291 (291290740)|CUMULATIVE_LIMIT_USAGE
+16:58:40.291 (291290740)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 0 out of 100
+  Number of query rows: 0 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 8 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 8 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+16:58:40.291 (291290740)|CUMULATIVE_LIMIT_USAGE_END
+
+16:58:40.0 (291679787)|CODE_UNIT_FINISHED|MaintenanceRequestTrigger on Case trigger event BeforeUpdate|__sfdc_trigger/MaintenanceRequestTrigger
+16:58:40.0 (316707700)|CODE_UNIT_STARTED|[EXTERNAL]|01qNS00000WDZoj|MaintenanceRequest on Case trigger event AfterUpdate|__sfdc_trigger/MaintenanceRequest
+16:58:40.0 (316837622)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (316961673)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:8
+16:58:40.0 (317176628)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (317196269)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequest|true|false
+16:58:40.0 (317251119)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x41f58a27
+16:58:40.0 (317311831)|HEAP_ALLOCATE|[EXTERNAL]|Bytes:4
+16:58:40.0 (317323411)|VARIABLE_SCOPE_BEGIN|[1]|this|MaintenanceRequest|true|false
+16:58:40.0 (317345751)|VARIABLE_ASSIGNMENT|[1]|this|{}|0x41f58a27
+16:58:40.0 (317358752)|STATEMENT_EXECUTE|[1]
+16:58:40.317 (317369702)|CUMULATIVE_LIMIT_USAGE
+16:58:40.317 (317369702)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 0 out of 100
+  Number of query rows: 0 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 8 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 8 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+16:58:40.317 (317369702)|CUMULATIVE_LIMIT_USAGE_END
+
+16:58:40.0 (317699618)|CODE_UNIT_FINISHED|MaintenanceRequest on Case trigger event AfterUpdate|__sfdc_trigger/MaintenanceRequest
+16:58:40.0 (318592354)|CODE_UNIT_STARTED|[EXTERNAL]|Workflow:Case
+16:58:40.0 (325417029)|WF_RULE_EVAL_BEGIN|Assignment
+16:58:40.0 (325470701)|WF_SPOOL_ACTION_BEGIN|Assignment
+16:58:40.0 (325503382)|WF_ACTION|.
+16:58:40.0 (325514052)|WF_RULE_EVAL_END
+16:58:40.0 (325545603)|WF_RULE_EVAL_BEGIN|Escalation
+16:58:40.0 (325576103)|WF_SPOOL_ACTION_BEGIN|Escalation
+16:58:40.0 (325594574)|WF_ACTION|.
+16:58:40.0 (325603004)|WF_RULE_EVAL_END
+16:58:40.0 (325780467)|WF_ACTIONS_END| None
+16:58:40.0 (325800377)|CODE_UNIT_FINISHED|Workflow:Case
+16:58:40.0 (327179662)|CODE_UNIT_STARTED|[EXTERNAL]|SLA
+16:58:40.0 (330636387)|SLA_PROCESS_CASE|500NS00000fkTvR
+16:58:40.0 (338578352)|SLA_END|SlaProcessController:&#124;Case:1&#124;LoadTime:3&#124;ProcTime:7&#124;CM CUD:0&#124;0&#124;0&#124;New Trigger:0
+16:58:40.0 (338687474)|CODE_UNIT_FINISHED|SLA
+16:58:40.0 (343409783)|DML_END|[53]
+16:58:40.0 (343980292)|STATEMENT_EXECUTE|[56]
+16:58:40.0 (343999344)|HEAP_ALLOCATE|[56]|Bytes:118
+16:58:40.0 (344067814)|HEAP_ALLOCATE|[56]|Bytes:4
+16:58:40.0 (344095845)|HEAP_ALLOCATE|[56]|Bytes:7
+16:58:40.0 (345767106)|SOQL_EXECUTE_BEGIN|[56]|Aggregations:0|SELECT Id, Date_Due__c FROM Case WHERE (Type = 'Routine Maintenance' AND Status != 'Closed' AND Vehicle__c = :tmpVar1)
+16:58:40.0 (367520938)|SOQL_EXECUTE_END|[56]|Rows:1
+16:58:40.0 (367619849)|HEAP_ALLOCATE|[56]|Bytes:8
+16:58:40.0 (367673921)|HEAP_ALLOCATE|[56]|Bytes:29
+16:58:40.0 (367735891)|HEAP_ALLOCATE|[56]|Bytes:8
+16:58:40.0 (367830973)|VARIABLE_ASSIGNMENT|[56]|newMaintRequestCreated|[{"Id":"500NS00000fkTvUYAU"}]|0x7a1b2333
+16:58:40.0 (367843144)|STATEMENT_EXECUTE|[59]
+16:58:40.0 (368013487)|SAVEPOINT_ROLLBACK|[59]|SavepointValue0
+16:58:40.0 (370923261)|STATEMENT_EXECUTE|[61]
+16:58:40.0 (371172646)|HEAP_ALLOCATE|[61]|Bytes:4
+16:58:40.0 (371248327)|HEAP_ALLOCATE|[61]|Bytes:4
+16:58:40.0 (371300028)|HEAP_ALLOCATE|[61]|Bytes:8
+16:58:40.0 (371519692)|EXCEPTION_THROWN|[61]|System.AssertException: Assertion Failed: Expected: 2025-03-18 00:00:00, Actual: null
+16:58:40.0 (371720936)|HEAP_ALLOCATE|[61]|Bytes:65
+16:58:40.0 (371857748)|FATAL_ERROR|System.AssertException: Assertion Failed: Expected: 2025-03-18 00:00:00, Actual: null
+
+AnonymousBlock: line 61, column 1
+16:58:40.371 (371922020)|CUMULATIVE_LIMIT_USAGE
+16:58:40.371 (371922020)|LIMIT_USAGE_FOR_NS|(default)|
+  Number of SOQL queries: 1 out of 100
+  Number of query rows: 1 out of 50000
+  Number of SOSL queries: 0 out of 20
+  Number of DML statements: 9 out of 150
+  Number of Publish Immediate DML: 0 out of 150
+  Number of DML rows: 8 out of 10000
+  Maximum CPU time: 0 out of 10000
+  Maximum heap size: 0 out of 6000000
+  Number of callouts: 0 out of 100
+  Number of Email Invocations: 0 out of 10
+  Number of future calls: 0 out of 50
+  Number of queueable jobs added to the queue: 0 out of 50
+  Number of Mobile Apex push calls: 0 out of 10
+
+16:58:40.371 (371922020)|CUMULATIVE_LIMIT_USAGE_END
+
+16:58:40.0 (372035062)|CODE_UNIT_FINISHED|execute_anonymous_apex
+16:58:40.0 (372051611)|EXECUTION_FINISHED
